@@ -1,0 +1,36 @@
+{
+  "name": "yooyoomovie-api",
+  "version": "1.0.0",
+  "description": "YOOYOO MOVIE - TMDB API Proxy for Cloudflare Workers",
+  "main": "worker.js",
+  "scripts": {
+    "dev": "wrangler dev --local --persist",
+    "dev:remote": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:production": "wrangler deploy --env production",
+    "tail": "wrangler tail",
+    "format": "prettier --write .",
+    "lint": "eslint .",
+    "cf-typegen": "wrangler types"
+  },
+  "keywords": [
+    "cloudflare-workers",
+    "tmdb",
+    "movie-api",
+    "proxy",
+    "yooyoomovie"
+  ],
+  "author": "YOOYOO MOVIE",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240806.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4",
+    "wrangler": "^3.68.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
