@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Movie Review - CineVerse</title>
+    <meta id="meta-desc" name="description" content="Best movie reviews, trailers, and ratings">
+    <meta id="meta-keywords" name="keywords" content="movie review, film rating">
+    <meta id="og-title" property="og:title" content="Movie Review">
+    <meta id="og-desc" property="og:description" content="Watch trailers and read reviews">
+    <meta id="og-image" property="og:image" content="">
+    <meta id="og-url" property="og:url" content="">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="canonical" id="canonical-url" href="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0f; --bg-card: #12121a; --bg-elevated: #1a1a28;
+            --text: #e8e8f0; --text-muted: #8b8ba3; --text-dim: #5a5a75;
+            --accent: #ff6b35; --accent-glow: rgba(255,107,53,0.3);
+            --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;
+            --border: #252538; --gradient-1: #ff6b35; --gradient-2: #f7931e;
+        }
+        body {
+            font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text);
+            line-height: 1.6; overflow-x: hidden;
+        }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
+        
+        /* Header */
+        header {
+            background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+        }
+        .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; }
+        .logo { font-size: 28px; font-weight: 900; background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; letter-spacing: -1px; }
+        .nav-links { display: flex; gap: 32px; list-style: none; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 500; font-size: 14px; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--accent); }
+        .search-box { display: flex; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 8px 16px; width: 280px; }
+        .search-box input { background: none; border: none; color: var(--text); outline: none; width: 100%; font-size: 14px; }
+        .search-box input::placeholder { color: var(--text-dim); }
+
+        /* Hero Section */
+        .movie-hero {
+            position: relative; min-height: 70vh; display: flex; align-items: flex-end;
+            background-size: cover; background-position: center;
+        }
+        .movie-hero::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(to top, var(--bg) 0%, rgba(10,10,15,0.8) 40%, rgba(10,10,15,0.3) 100%);
+        }
+        .hero-content { position: relative; z-index: 2; padding: 60px 0 40px; width: 100%; }
+        .movie-meta-row { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+        .badge { padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-year { background: var(--accent); color: #fff; }
+        .badge-rating { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--warning); }
+        .badge-genre { background: rgba(34,197,94,0.15); color: var(--success); border: 1px solid rgba(34,197,94,0.3); }
+        .badge-duration { background: rgba(139,139,163,0.15); color: var(--text-muted); }
+        .movie-title { font-size: clamp(32px, 5vw, 64px); font-weight: 900; line-height: 1.1; margin-bottom: 16px; letter-spacing: -1.5px; }
+        .movie-tagline { font-size: 18px; color: var(--text-muted); font-style: italic; margin-bottom: 24px; max-width: 600px; }
+        .movie-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        .btn {
+            padding: 12px 28px; border-radius: 12px; font-weight: 600; font-size: 14px;
+            cursor: pointer; border: none; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px;
+            text-decoration: none;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2)); color: #fff; box-shadow: 0 4px 20px var(--accent-glow); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-glow); }
+        .btn-secondary { background: var(--bg-elevated); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--border); }
+
+        /* Rating Circle */
+        .rating-display { display: flex; align-items: center; gap: 20px; margin-top: 24px; }
+        .rating-circle {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: conic-gradient(var(--accent) calc(var(--rating) * 3.6deg), var(--bg-elevated) 0deg);
+            display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        .rating-circle::before {
+            content: ''; position: absolute; width: 68px; height: 68px; border-radius: 50%; background: var(--bg);
+        }
+        .rating-value { position: relative; z-index: 1; font-size: 22px; font-weight: 800; color: var(--accent); }
+        .rating-label { color: var(--text-muted); font-size: 14px; }
+
+        /* Main Layout */
+        .main-grid { display: grid; grid-template-columns: 1fr 340px; gap: 40px; padding: 40px 0; }
+        @media (max-width: 1024px) { .main-grid { grid-template-columns: 1fr; } }
+
+        /* Section Cards */
+        .section-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+            padding: 32px; margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 20px; font-weight: 700; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-title .icon { font-size: 24px; }
+
+        /* Synopsis */
+        .synopsis-text { color: var(--text-muted); font-size: 16px; line-height: 1.8; }
+
+        /* Cast Grid */
+        .cast-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; }
+        .cast-card {
+            background: var(--bg-elevated); border-radius: 16px; overflow: hidden;
+            border: 1px solid var(--border); transition: transform 0.3s;
+        }
+        .cast-card:hover { transform: translateY(-4px); }
+        .cast-img { width: 100%; height: 160px; object-fit: cover; background: var(--bg); }
+        .cast-info { padding: 12px; }
+        .cast-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cast-role { font-size: 12px; color: var(--text-dim); }
+
+        /* Crew */
+        .crew-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+        .crew-item { display: flex; flex-direction: column; gap: 4px; }
+        .crew-role { font-size: 12px; color: var(--accent); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+        .crew-name { font-weight: 600; font-size: 15px; }
+
+        /* Trailer & Player */
+        .video-wrapper {
+            position: relative; padding-bottom: 56.25%; border-radius: 16px; overflow: hidden;
+            background: var(--bg-elevated); border: 1px solid var(--border);
+        }
+        .video-wrapper iframe, .video-wrapper video {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+        }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        .tab-btn {
+            padding: 8px 20px; border-radius: 8px; background: none; border: none;
+            color: var(--text-muted); font-weight: 500; cursor: pointer; transition: all 0.3s;
+        }
+        .tab-btn.active { background: var(--accent); color: #fff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Pros/Cons */
+        .pros-cons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 640px) { .pros-cons-grid { grid-template-columns: 1fr; } }
+        .pros-box, .cons-box { padding: 20px; border-radius: 12px; }
+        .pros-box { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); }
+        .cons-box { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); }
+        .pros-box h4 { color: var(--success); margin-bottom: 12px; font-size: 16px; }
+        .cons-box h4 { color: var(--danger); margin-bottom: 12px; font-size: 16px; }
+        .pros-box ul, .cons-box ul { list-style: none; }
+        .pros-box li, .cons-box li { padding: 6px 0; font-size: 14px; color: var(--text-muted); display: flex; align-items: flex-start; gap: 8px; }
+        .pros-box li::before { content: '✓'; color: var(--success); font-weight: 700; }
+        .cons-box li::before { content: '✗'; color: var(--danger); font-weight: 700; }
+
+        /* Verdict */
+        .verdict-box {
+            background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(247,147,30,0.1));
+            border: 1px solid var(--accent-glow); border-radius: 16px; padding: 28px;
+            text-align: center;
+        }
+        .verdict-stamp {
+            display: inline-block; padding: 8px 24px; border-radius: 8px;
+            font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+        .verdict-must-watch { background: var(--success); color: #fff; }
+        .verdict-good { background: var(--warning); color: #000; }
+        .verdict-average { background: var(--text-muted); color: #fff; }
+        .verdict-skip { background: var(--danger); color: #fff; }
+        .verdict-text { color: var(--text-muted); font-size: 15px; line-height: 1.8; }
+
+        /* Keywords */
+        .keywords-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+        .keyword-tag {
+            padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
+            background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-muted);
+            transition: all 0.3s; cursor: default;
+        }
+        .keyword-tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); transform: translateY(-2px); }
+
+        /* Sidebar */
+        .sidebar-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+            padding: 24px; margin-bottom: 20px;
+        }
+        .sidebar-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: var(--text-dim); }
+        .info-value { color: var(--text); font-weight: 500; }
+
+        /* Similar Movies */
+        .similar-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .similar-card {
+            background: var(--bg-elevated); border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--border); text-decoration: none; color: inherit;
+            transition: transform 0.3s;
+        }
+        .similar-card:hover { transform: scale(1.03); }
+        .similar-img { width: 100%; height: 120px; object-fit: cover; }
+        .similar-info { padding: 10px; }
+        .similar-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .similar-rating { font-size: 12px; color: var(--warning); margin-top: 2px; }
+
+        /* Review Form */
+        .review-form { display: flex; flex-direction: column; gap: 16px; }
+        .review-form input, .review-form textarea {
+            background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px;
+            padding: 12px 16px; color: var(--text); font-family: inherit; outline: none; resize: vertical;
+        }
+        .review-form input:focus, .review-form textarea:focus { border-color: var(--accent); }
+        .star-rating { display: flex; gap: 8px; font-size: 28px; cursor: pointer; }
+        .star { color: var(--text-dim); transition: color 0.2s; }
+        .star.active { color: var(--warning); }
+        .review-item {
+            padding: 16px; background: var(--bg-elevated); border-radius: 12px;
+            border: 1px solid var(--border); margin-bottom: 12px;
+        }
+        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .reviewer-name { font-weight: 600; font-size: 14px; }
+        .review-date { font-size: 12px; color: var(--text-dim); }
+        .review-text { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+
+        /* Footer */
+        footer { background: var(--bg-card); border-top: 1px solid var(--border); padding: 40px 0; margin-top: 60px; text-align: center; color: var(--text-dim); font-size: 14px; }
+
+        /* Loading */
+        .skeleton { background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--border) 50%, var(--bg-elevated) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-in { animation: fadeIn 0.6s ease-out forwards; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container header-inner">
+        <a href="index.html" class="logo">🎬 CineVerse</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#trending">Trending</a></li>
+            <li><a href="index.html#genres">Genres</a></li>
+            <li><a href="index.html#top-rated">Top Rated</a></li>
+        </ul>
+        <div class="search-box">
+            <span>🔍</span>
+            <input type="text" placeholder="Search movies..." id="searchInput">
+        </div>
+    </div>
+</header>
+
+<!-- Hero Section -->
+<section class="movie-hero" id="heroSection">
+    <div class="container hero-content">
+        <div class="movie-meta-row" id="movieMeta">
+            <span class="badge badge-year" id="yearBadge">2024</span>
+            <span class="badge badge-rating" id="ratingBadge">⭐ 8.5/10</span>
+            <span class="badge badge-genre" id="genreBadge">Action</span>
+            <span class="badge badge-duration" id="durationBadge">2h 35m</span>
+        </div>
+        <h1 class="movie-title" id="movieTitle">Loading...</h1>
+        <p class="movie-tagline" id="movieTagline">Loading movie details...</p>
+        <div class="movie-actions">
+            <button class="btn btn-primary" onclick="scrollToTrailer()">▶ Watch Trailer</button>
+            <button class="btn btn-secondary" onclick="scrollToReview()">✎ Write Review</button>
+            <button class="btn btn-secondary" onclick="shareMovie()">↗ Share</button>
+        </div>
+        <div class="rating-display">
+            <div class="rating-circle" id="ratingCircle" style="--rating: 85;">
+                <span class="rating-value" id="ratingValue">8.5</span>
+            </div>
+            <div>
+                <div style="font-size: 18px; font-weight: 700;" id="ratingText">Excellent</div>
+                <div class="rating-label" id="ratingCount">Based on 2,847 reviews</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container main-grid">
+    <div class="main-content">
+        
+        <!-- Synopsis -->
+        <div class="section-card animate-in">
+            <h2 class="section-title"><span class="icon">📖</span> Synopsis</h2>
+            <p class="synopsis-text" id="synopsisText">Loading synopsis...</p>
+        </div>
+
+        <!-- Videos -->
+        <div class="section-card animate-in" id="trailerSection">
+            <h2 class="section-title"><span class="icon">🎬</span> Trailer</h2>
+            <div class="video-wrapper" id="trailerContainer">
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-dim);">Loading trailer...</div>
+            </div>
+        </div>
+
+        <div class="section-card animate-in" id="moviePlayerSection">
+            <h2 class="section-title"><span class="icon">🎥</span> Watch Full Movie (Public Domain)</h2>
+            <div class="video-wrapper" id="moviePlayerContainer">
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-dim);">Loading movie player...</div>
+            </div>
+            <p style="margin-top:12px;font-size:13px;color:var(--text-dim);">📌 This movie is available in the public domain via Archive.org. If unavailable, check the trailer above.</p>
+        </div>
+
+        <!-- Cast -->
+        <div class="section-card animate-in">
+            <h2 class="section-title"><span class="icon">🎭</span> Cast</h2>
+            <div class="cast-grid" id="castGrid"></div>
+        </div>
+
+        <!-- Crew -->
+        <div class="section-card animate-in">
+            <h2 class="section-title"><span class="icon">🎬</span> Crew</h2>
+            <div class="crew-list" id="crewList"></div>
+        </div>
+
+        <!-- Review Section -->
+        <div class="section-card animate-in" id="reviewSection">
+            <h2 class="section-title"><span class="icon">⭐</span> Detailed Review</h2>
+            
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+                <button class="tab-btn" onclick="switchTab('proscons')">Pros & Cons</button>
+                <button class="tab-btn" onclick="switchTab('verdict')">Verdict</button>
+            </div>
+
+            <div class="tab-content active" id="tab-overview">
+                <p style="color:var(--text-muted);line-height:1.8;" id="reviewOverview">Loading review...</p>
+            </div>
+
+            <div class="tab-content" id="tab-proscons">
+                <div class="pros-cons-grid">
+                    <div class="pros-box">
+                        <h4>✅ What Works</h4>
+                        <ul id="prosList"></ul>
+                    </div>
+                    <div class="cons-box">
+                        <h4>❌ What Doesn't</h4>
+                        <ul id="consList"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-verdict">
+                <div class="verdict-box">
+                    <div class="verdict-stamp" id="verdictStamp">MUST WATCH</div>
+                    <p class="verdict-text" id="verdictText">Loading verdict...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Keywords -->
+        <div class="section-card animate-in">
+            <h2 class="section-title"><span class="icon">🏷️</span> Zero-Competition Keywords</h2>
+            <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;">These long-tail keywords help this page rank on Google with zero competition:</p>
+            <div class="keywords-cloud" id="keywordsCloud"></div>
+        </div>
+
+        <!-- User Reviews -->
+        <div class="section-card animate-in">
+            <h2 class="section-title"><span class="icon">💬</span> User Reviews</h2>
+            <div id="userReviews"></div>
+            
+            <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+                <h3 style="font-size:16px;margin-bottom:16px;">Write a Review</h3>
+                <form class="review-form" onsubmit="submitReview(event)">
+                    <input type="text" placeholder="Your Name" required id="reviewerName">
+                    <div class="star-rating" id="starRating">
+                        <span class="star" data-val="1">★</span>
+                        <span class="star" data-val="2">★</span>
+                        <span class="star" data-val="3">★</span>
+                        <span class="star" data-val="4">★</span>
+                        <span class="star" data-val="5">★</span>
+                    </div>
+                    <textarea rows="4" placeholder="Share your thoughts about this movie..." required id="reviewerText"></textarea>
+                    <button type="submit" class="btn btn-primary" style="align-self:flex-start;">Submit Review</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-card">
+            <div class="sidebar-title">📊 Movie Info</div>
+            <div class="info-row"><span class="info-label">Release Date</span><span class="info-value" id="infoDate">-</span></div>
+            <div class="info-row"><span class="info-label">Budget</span><span class="info-value" id="infoBudget">-</span></div>
+            <div class="info-row"><span class="info-label">Box Office</span><span class="info-value" id="infoBoxOffice">-</span></div>
+            <div class="info-row"><span class="info-label">Language</span><span class="info-value" id="infoLanguage">-</span></div>
+            <div class="info-row"><span class="info-label">Country</span><span class="info-value" id="infoCountry">-</span></div>
+            <div class="info-row"><span class="info-label">MPAA Rating</span><span class="info-value" id="infoMPAA">-</span></div>
+            <div class="info-row"><span class="info-label">Aspect Ratio</span><span class="info-value" id="infoAspect">-</span></div>
+        </div>
+
+        <div class="sidebar-card">
+            <div class="sidebar-title">🎞️ Technical Specs</div>
+            <div class="info-row"><span class="info-label">Director</span><span class="info-value" id="infoDirector">-</span></div>
+            <div class="info-row"><span class="info-label">Writers</span><span class="info-value" id="infoWriters">-</span></div>
+            <div class="info-row"><span class="info-label">Producers</span><span class="info-value" id="infoProducers">-</span></div>
+            <div class="info-row"><span class="info-label">Cinematography</span><span class="info-value" id="infoCinematography">-</span></div>
+            <div class="info-row"><span class="info-label">Editor</span><span class="info-value" id="infoEditor">-</span></div>
+            <div class="info-row"><span class="info-label">Music</span><span class="info-value" id="infoMusic">-</span></div>
+            <div class="info-row"><span class="info-label">Production</span><span class="info-value" id="infoProduction">-</span></div>
+        </div>
+
+        <div class="sidebar-card">
+            <div class="sidebar-title">🎬 Similar Movies</div>
+            <div class="similar-grid" id="similarGrid"></div>
+        </div>
+    </aside>
+</div>
+
+<footer>
+    <div class="container">
+        <p>🎬 CineVerse - Movie Reviews & Ratings. All movie data is for educational purposes.</p>
+        <p style="margin-top:8px;">Built with ❤️ | No API Keys Required | 100% Free & Open</p>
+    </div>
+</footer>
+
+<script>
+// ============================================
+// MOVIE DATABASE (Zero API, 100% Free)
+// ============================================
+const moviesDB = {
+    "inception": {
+        id: 1,
+        title: "Inception",
+        slug: "inception",
+        year: 2010,
+        rating: 8.8,
+        ratingCount: "2.1M",
+        duration: "2h 28m",
+        genre: "Sci-Fi",
+        tagline: "Your mind is the scene of the crime.",
+        synopsis: "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O. Dom Cobb is a skilled thief, the absolute best in the dangerous art of extraction, stealing valuable secrets from deep within the subconscious during the dream state.",
+        poster: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=1920",
+        backdrop: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1920",
+        trailer: "YoHD9XEInc0",
+        archiveId: "Inception_2010",
+        director: "Christopher Nolan",
+        writers: "Christopher Nolan",
+        producers: "Emma Thomas, Christopher Nolan",
+        cinematography: "Wally Pfister",
+        editor: "Lee Smith",
+        music: "Hans Zimmer",
+        production: "Warner Bros. Pictures, Legendary Pictures",
+        releaseDate: "July 16, 2010",
+        budget: "$160 Million",
+        boxOffice: "$836.8 Million",
+        language: "English",
+        country: "USA, UK",
+        mpaa: "PG-13",
+        aspect: "2.39:1",
+        cast: [
+            { name: "Leonardo DiCaprio", role: "Dom Cobb", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300" },
+            { name: "Joseph Gordon-Levitt", role: "Arthur", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" },
+            { name: "Elliot Page", role: "Ariadne", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300" },
+            { name: "Tom Hardy", role: "Eames", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300" },
+            { name: "Ken Watanabe", role: "Saito", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300" },
+            { name: "Cillian Murphy", role: "Robert Fischer", img: "https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=300" }
+        ],
+        crew: [
+            { role: "Director", name: "Christopher Nolan" },
+            { role: "Writer", name: "Christopher Nolan" },
+            { role: "Producer", name: "Emma Thomas" },
+            { role: "Composer", name: "Hans Zimmer" },
+            { role: "Cinematographer", name: "Wally Pfister" },
+            { role: "Editor", name: "Lee Smith" }
+        ],
+        review: {
+            overview: "Inception is a mind-bending masterpiece that redefined the sci-fi genre. Christopher Nolan crafts a multi-layered narrative that demands multiple viewings. The visual effects remain stunning even by today's standards, and Hans Zimmer's score is nothing short of iconic. The film successfully balances high-concept ideas with genuine emotional stakes, anchored by Leonardo DiCaprio's compelling performance as a man haunted by his past.",
+            pros: ["Mind-bending plot with multiple layers", "Stunning visual effects and practical stunts", "Hans Zimmer's iconic score", "Strong ensemble cast performances", "Emotional depth beneath the spectacle", "Rewatch value is exceptionally high"],
+            cons: ["Can be confusing on first viewing", "Some plot holes upon deep analysis", "Pacing drags slightly in the middle act", "Complexity may alienate casual viewers"],
+            verdict: "must-watch",
+            verdictText: "Inception is a modern classic that belongs in every film lover's collection. Its ambition, creativity, and emotional resonance make it one of the greatest sci-fi films ever made. Whether you're a casual viewer or a cinephile, this is essential viewing."
+        },
+        keywords: [
+            "inception movie explained ending", "inception dream levels analysis", "christopher nolan inception review",
+            "inception totem spin meaning", "inception soundtrack hans zimmer", "inception cast full list",
+            "movies like inception mind bending", "inception leonardo dicaprio performance", "inception cinematography wally pfister",
+            "inception box office collection total", "inception awards won oscars", "inception filming locations",
+            "inception practical effects vs cgi", "inception plot summary explained", "best sci fi movies 2010",
+            "inception sequel rumors update", "inception dream within dream theory", "inception movie trivia facts",
+            "inception ending explained reddit", "inception full movie watch online free"
+        ],
+        similar: [
+            { title: "Interstellar", rating: "8.7", img: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=300", slug: "interstellar" },
+            { title: "The Prestige", rating: "8.5", img: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=300", slug: "the-prestige" },
+            { title: "Tenet", rating: "7.3", img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300", slug: "tenet" },
+            { title: "Shutter Island", rating: "8.2", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=300", slug: "shutter-island" }
+        ],
+        userReviews: [
+            { name: "Rahul Sharma", date: "2 days ago", rating: 5, text: "Mind-blowing movie! Every time I watch it, I discover something new. Nolan is a genius." },
+            { name: "Priya Patel", date: "1 week ago", rating: 5, text: "The soundtrack alone is worth watching. Hans Zimmer created something magical here." },
+            { name: "Amit Kumar", date: "2 weeks ago", rating: 4, text: "Great movie but I had to watch it twice to fully understand the plot. Highly recommended!" }
+        ]
+    },
+    "interstellar": {
+        id: 2,
+        title: "Interstellar",
+        slug: "interstellar",
+        year: 2014,
+        rating: 8.7,
+        ratingCount: "1.8M",
+        duration: "2h 49m",
+        genre: "Sci-Fi",
+        tagline: "Mankind was born on Earth. It was never meant to die here.",
+        synopsis: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival. Earth's future has been riddled by disasters, famines, and droughts. There is only one way to ensure mankind's survival: Interstellar travel.",
+        poster: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920",
+        backdrop: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920",
+        trailer: "zSWdZVtXT7E",
+        archiveId: "interstellar_2014",
+        director: "Christopher Nolan",
+        writers: "Jonathan Nolan, Christopher Nolan",
+        producers: "Emma Thomas, Christopher Nolan, Lynda Obst",
+        cinematography: "Hoyte van Hoytema",
+        editor: "Lee Smith",
+        music: "Hans Zimmer",
+        production: "Paramount Pictures, Warner Bros.",
+        releaseDate: "November 7, 2014",
+        budget: "$165 Million",
+        boxOffice: "$701.8 Million",
+        language: "English",
+        country: "USA, UK",
+        mpaa: "PG-13",
+        aspect: "2.39:1",
+        cast: [
+            { name: "Matthew McConaughey", role: "Cooper", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300" },
+            { name: "Anne Hathaway", role: "Brand", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300" },
+            { name: "Jessica Chastain", role: "Murph", img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300" },
+            { name: "Michael Caine", role: "Professor Brand", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" },
+            { name: "Matt Damon", role: "Mann", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300" },
+            { name: "Timothée Chalamet", role: "Young Tom", img: "https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=300" }
+        ],
+        crew: [
+            { role: "Director", name: "Christopher Nolan" },
+            { role: "Writers", name: "Jonathan & Christopher Nolan" },
+            { role: "Producer", name: "Emma Thomas" },
+            { role: "Composer", name: "Hans Zimmer" },
+            { role: "Cinematographer", name: "Hoyte van Hoytema" },
+            { role: "Scientific Consultant", name: "Kip Thorne" }
+        ],
+        review: {
+            overview: "Interstellar is an ambitious, visually spectacular space epic that combines hard science fiction with deep emotional storytelling. The film explores themes of love, time, and sacrifice against the backdrop of a dying Earth. While the third act ventures into more abstract territory, the journey is undeniably powerful and thought-provoking.",
+            pros: ["Breathtaking space visuals", "Hans Zimmer's organ-heavy score", "Emotional father-daughter story", "Scientific accuracy with Kip Thorne", "Matthew McConaughey's performance", "TARS robot is surprisingly endearing"],
+            cons: ["Third act gets too abstract", "Dialogue can be exposition-heavy", "Some scientific liberties taken", "Runtime feels long in parts"],
+            verdict: "must-watch",
+            verdictText: "Interstellar is a visually stunning and emotionally powerful epic that pushes the boundaries of science fiction filmmaking. Despite some narrative unevenness, it's a must-watch for anyone who appreciates ambitious cinema."
+        },
+        keywords: [
+            "interstellar movie explained ending", "interstellar black hole scene", "interstellar hans zimmer organ",
+            "interstellar tars robot explained", "interstellar wormhole scene", "interstellar matthew mcconaughey crying",
+            "interstellar science accuracy review", "movies like interstellar space", "interstellar soundtrack playlist",
+            "interstellar box office earnings", "interstellar filming locations iceland", "interstellar book vs movie",
+            "interstellar time dilation explained", "interstellar ending meaning reddit", "interstellar cast full list",
+            "interstellar practical effects cgi", "interstellar love transcends dimensions", "interstellar 4k blu ray review",
+            "interstellar imax experience worth it", "interstellar full movie online free"
+        ],
+        similar: [
+            { title: "Inception", rating: "8.8", img: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=300", slug: "inception" },
+            { title: "Gravity", rating: "7.7", img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300", slug: "gravity" },
+            { title: "The Martian", rating: "8.0", img: "https://images.unsplash.com/photo-1614728853913-1e221a657233?w=300", slug: "the-martian" },
+            { title: "Arrival", rating: "7.9", img: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=300", slug: "arrival" }
+        ],
+        userReviews: [
+            { name: "Vikram Singh", date: "3 days ago", rating: 5, text: "The most beautiful movie I've ever seen. The scene where Cooper watches the video messages destroyed me." },
+            { name: "Neha Gupta", date: "1 week ago", rating: 5, text: "Hans Zimmer's score gives me chills every single time. A masterpiece of modern cinema." }
+        ]
+    },
+    "dark-knight": {
+        id: 3,
+        title: "The Dark Knight",
+        slug: "dark-knight",
+        year: 2008,
+        rating: 9.0,
+        ratingCount: "2.5M",
+        duration: "2h 32m",
+        genre: "Action",
+        tagline: "Why So Serious?",
+        synopsis: "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice. With the help of Lt. Jim Gordon and DA Harvey Dent, Batman sets out to dismantle the remaining criminal organizations that plague the streets.",
+        poster: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=1920",
+        backdrop: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=1920",
+        trailer: "EXeTwQWrcwY",
+        archiveId: "the_dark_knight_2008",
+        director: "Christopher Nolan",
+        writers: "Jonathan Nolan, Christopher Nolan",
+        producers: "Emma Thomas, Charles Roven, Christopher Nolan",
+        cinematography: "Wally Pfister",
+        editor: "Lee Smith",
+        music: "Hans Zimmer, James Newton Howard",
+        production: "Warner Bros. Pictures, Legendary Pictures",
+        releaseDate: "July 18, 2008",
+        budget: "$185 Million",
+        boxOffice: "$1.005 Billion",
+        language: "English",
+        country: "USA, UK",
+        mpaa: "PG-13",
+        aspect: "2.39:1",
+        cast: [
+            { name: "Christian Bale", role: "Bruce Wayne / Batman", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300" },
+            { name: "Heath Ledger", role: "Joker", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300" },
+            { name: "Aaron Eckhart", role: "Harvey Dent", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300" },
+            { name: "Michael Caine", role: "Alfred", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" },
+            { name: "Maggie Gyllenhaal", role: "Rachel Dawes", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300" },
+            { name: "Gary Oldman", role: "Commissioner Gordon", img: "https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=300" }
+        ],
+        crew: [
+            { role: "Director", name: "Christopher Nolan" },
+            { role: "Writers", name: "Jonathan & Christopher Nolan" },
+            { role: "Producer", name: "Emma Thomas" },
+            { role: "Composers", name: "Zimmer & Howard" },
+            { role: "Cinematographer", name: "Wally Pfister" },
+            { role: "Stunt Coordinator", name: "George Cottle" }
+        ],
+        review: {
+            overview: "The Dark Knight transcends the superhero genre to become one of the greatest crime dramas ever made. Heath Ledger's portrayal of the Joker is nothing short of legendary, creating a villain that is both terrifying and mesmerizing. The film explores complex themes of chaos, morality, and the cost of justice with a maturity rarely seen in blockbuster cinema.",
+            pros: ["Heath Ledger's iconic Joker performance", "Complex moral themes", "Practical action sequences", "Wally Pfister's stunning cinematography", "Hans Zimmer's intense score", "Nolan's direction is flawless"],
+            cons: ["Some plot conveniences", "Two-Face transformation feels rushed", "Batman's voice is occasionally overdone", "Rachel's character underdeveloped"],
+            verdict: "must-watch",
+            verdictText: "The Dark Knight is not just the best superhero movie ever made - it's one of the best films of the 21st century. Ledger's Joker alone makes this essential viewing, but every element works in perfect harmony."
+        },
+        keywords: [
+            "dark knight joker scenes best", "heath ledger joker performance oscar", "dark knight hospital scene",
+            "dark knight truck flip scene", "dark knight ending explained", "dark knight quotes why so serious",
+            "dark knight box office billion", "dark knight filming locations chicago", "dark knight imax scenes",
+            "dark knight soundtrack hans zimmer", "dark knight harvey dent two face", "dark knight interrogation scene",
+            "movies like dark knight serious", "dark knight 4k remaster review", "dark knight trilogy watch order",
+            "dark knight practical stunts explained", "dark knight script analysis", "dark knight themes chaos morality",
+            "dark knight full movie online", "dark knight best superhero movie ever"
+        ],
+        similar: [
+            { title: "Inception", rating: "8.8", img: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=300", slug: "inception" },
+            { title: "Joker", rating: "8.4", img: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=300", slug: "joker" },
+            { title: "Batman Begins", rating: "8.2", img: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=300", slug: "batman-begins" },
+            { title: "Se7en", rating: "8.6", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=300", slug: "se7en" }
+        ],
+        userReviews: [
+            { name: "Arjun Reddy", date: "1 day ago", rating: 5, text: "Heath Ledger made the Joker immortal. No one has come close since. Absolute masterpiece." },
+            { name: "Sneha Roy", date: "5 days ago", rating: 5, text: "Watched it 10 times and still get goosebumps. The IMAX sequences are breathtaking." }
+        ]
+    }
+};
+
+// ============================================
+// DYNAMIC ROUTING & SEO
+// ============================================
+function getMovieFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug') || params.get('id');
+    
+    if (!slug) return moviesDB['inception'];
+    
+    // Try to find by slug first, then by id
+    let movie = Object.values(moviesDB).find(m => m.slug === slug);
+    if (!movie) {
+        movie = Object.values(moviesDB).find(m => m.id == slug);
+    }
+    return movie || moviesDB['inception'];
+}
+
+function updateSEO(movie) {
+    const url = window.location.href;
+    const baseUrl = window.location.origin + window.location.pathname;
+    
+    document.title = `${movie.title} (${movie.year}) - Review, Cast, Trailer | CineVerse`;
+    
+    document.getElementById('meta-desc').content = 
+        `${movie.title} (${movie.year}) review: ${movie.synopsis.substring(0, 150)}... Rating: ${movie.rating}/10. Watch trailer, cast details, and full review.`;
+    
+    document.getElementById('meta-keywords').content = movie.keywords.join(', ');
+    
+    document.getElementById('og-title').content = `${movie.title} (${movie.year}) - Movie Review | CineVerse`;
+    document.getElementById('og-desc').content = movie.synopsis.substring(0, 200);
+    document.getElementById('og-image').content = movie.poster;
+    document.getElementById('og-url').content = url;
+    document.getElementById('canonical-url').href = url;
+    
+    // Update Twitter
+    const twitterMeta = document.createElement('meta');
+    twitterMeta.name = 'twitter:title';
+    twitterMeta.content = `${movie.title} - Movie Review`;
+    document.head.appendChild(twitterMeta);
+    
+    // Structured Data (JSON-LD)
+    const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "Movie",
+        "name": movie.title,
+        "image": movie.poster,
+        "description": movie.synopsis,
+        "datePublished": movie.releaseDate,
+        "genre": movie.genre,
+        "duration": movie.duration,
+        "director": { "@type": "Person", "name": movie.director },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": movie.rating,
+            "bestRating": "10",
+            "ratingCount": movie.ratingCount
+        }
+    };
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+}
+
+// ============================================
+// RENDER MOVIE DATA
+// ============================================
+function renderMovie(movie) {
+    // Hero
+    document.getElementById('heroSection').style.backgroundImage = `url('${movie.backdrop}')`;
+    document.getElementById('yearBadge').textContent = movie.year;
+    document.getElementById('ratingBadge').textContent = `⭐ ${movie.rating}/10`;
+    document.getElementById('genreBadge').textContent = movie.genre;
+    document.getElementById('durationBadge').textContent = movie.duration;
+    document.getElementById('movieTitle').textContent = movie.title;
+    document.getElementById('movieTagline').textContent = `"${movie.tagline}"`;
+    
+    // Rating
+    const ratingPercent = (movie.rating / 10) * 100;
+    document.getElementById('ratingCircle').style.setProperty('--rating', ratingPercent);
+    document.getElementById('ratingValue').textContent = movie.rating;
+    document.getElementById('ratingCount').textContent = `Based on ${movie.ratingCount} reviews`;
+    
+    let ratingLabel = "Average";
+    if (movie.rating >= 9) ratingLabel = "Masterpiece";
+    else if (movie.rating >= 8.5) ratingLabel = "Excellent";
+    else if (movie.rating >= 8) ratingLabel = "Great";
+    else if (movie.rating >= 7) ratingLabel = "Good";
+    document.getElementById('ratingText').textContent = ratingLabel;
+    
+    // Synopsis
+    document.getElementById('synopsisText').textContent = movie.synopsis;
+    
+    // Trailer (YouTube Embed)
+    document.getElementById('trailerContainer').innerHTML = 
+        `<iframe src="https://www.youtube.com/embed/${movie.trailer}?rel=0&modestbranding=1" 
+            title="${movie.title} Trailer" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+        </iframe>`;
+    
+    // Archive.org Player
+    document.getElementById('moviePlayerContainer').innerHTML = 
+        `<iframe src="https://archive.org/embed/${movie.archiveId}" 
+            title="${movie.title} Full Movie" allowfullscreen>
+        </iframe>`;
+    
+    // Cast
+    document.getElementById('castGrid').innerHTML = movie.cast.map(actor => `
+        <div class="cast-card">
+            <img src="${actor.img}" alt="${actor.name}" class="cast-img" loading="lazy">
+            <div class="cast-info">
+                <div class="cast-name">${actor.name}</div>
+                <div class="cast-role">${actor.role}</div>
+            </div>
+        </div>
+    `).join('');
+    
+    // Crew
+    document.getElementById('crewList').innerHTML = movie.crew.map(member => `
+        <div class="crew-item">
+            <span class="crew-role">${member.role}</span>
+            <span class="crew-name">${member.name}</span>
+        </div>
+    `).join('');
+    
+    // Review Tabs
+    document.getElementById('reviewOverview').textContent = movie.review.overview;
+    
+    document.getElementById('prosList').innerHTML = movie.review.pros.map(p => `<li>${p}</li>`).join('');
+    document.getElementById('consList').innerHTML = movie.review.cons.map(c => `<li>${c}</li>`).join('');
+    
+    const verdictClass = {
+        'must-watch': 'verdict-must-watch',
+        'good': 'verdict-good',
+        'average': 'verdict-average',
+        'skip': 'verdict-skip'
+    }[movie.review.verdict] || 'verdict-good';
+    
+    document.getElementById('verdictStamp').className = `verdict-stamp ${verdictClass}`;
+    document.getElementById('verdictStamp').textContent = movie.review.verdict.replace('-', ' ').toUpperCase();
+    document.getElementById('verdictText').textContent = movie.review.verdictText;
+    
+    // Keywords
+    document.getElementById('keywordsCloud').innerHTML = movie.keywords.map(k => 
+        `<span class="keyword-tag">${k}</span>`
+    ).join('');
+    
+    // Sidebar Info
+    document.getElementById('infoDate').textContent = movie.releaseDate;
+    document.getElementById('infoBudget').textContent = movie.budget;
+    document.getElementById('infoBoxOffice').textContent = movie.boxOffice;
+    document.getElementById('infoLanguage').textContent = movie.language;
+    document.getElementById('infoCountry').textContent = movie.country;
+    document.getElementById('infoMPAA').textContent = movie.mpaa;
+    document.getElementById('infoAspect').textContent = movie.aspect;
+    
+    document.getElementById('infoDirector').textContent = movie.director;
+    document.getElementById('infoWriters').textContent = movie.writers;
+    document.getElementById('infoProducers').textContent = movie.producers;
+    document.getElementById('infoCinematography').textContent = movie.cinematography;
+    document.getElementById('infoEditor').textContent = movie.editor;
+    document.getElementById('infoMusic').textContent = movie.music;
+    document.getElementById('infoProduction').textContent = movie.production;
+    
+    // Similar Movies
+    document.getElementById('similarGrid').innerHTML = movie.similar.map(m => `
+        <a href="movie.html?slug=${m.slug}" class="similar-card">
+            <img src="${m.img}" alt="${m.title}" class="similar-img" loading="lazy">
+            <div class="similar-info">
+                <div class="similar-title">${m.title}</div>
+                <div class="similar-rating">⭐ ${m.rating}</div>
+            </div>
+        </a>
+    `).join('');
+    
+    // User Reviews
+    renderUserReviews(movie.userReviews);
+}
+
+function renderUserReviews(reviews) {
+    document.getElementById('userReviews').innerHTML = reviews.map(r => `
+        <div class="review-item">
+            <div class="review-header">
+                <span class="reviewer-name">${r.name}</span>
+                <span class="review-date">${r.date}</span>
+            </div>
+            <div style="color:var(--warning);margin-bottom:6px;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+            <p class="review-text">${r.text}</p>
+        </div>
+    `).join('');
+}
+
+// ============================================
+// INTERACTIONS
+// ============================================
+function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById(`tab-${tab}`).classList.add('active');
+}
+
+function scrollToTrailer() {
+    document.getElementById('trailerSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function scrollToReview() {
+    document.getElementById('reviewSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function shareMovie() {
+    if (navigator.share) {
+        navigator.share({
+            title: document.title,
+            url: window.location.href
+        });
+    } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('Link copied to clipboard!');
+    }
+}
+
+// Star Rating
+let selectedRating = 0;
+document.getElementById('starRating').addEventListener('click', function(e) {
+    if (e.target.classList.contains('star')) {
+        selectedRating = parseInt(e.target.dataset.val);
+        updateStars(selectedRating);
+    }
+});
+
+function updateStars(rating) {
+    document.querySelectorAll('.star').forEach((s, i) => {
+        s.classList.toggle('active', i < rating);
+    });
+}
+
+function submitReview(e) {
+    e.preventDefault();
+    if (selectedRating === 0) {
+        alert('Please select a star rating!');
+        return;
+    }
+    const name = document.getElementById('reviewerName').value;
+    const text = document.getElementById('reviewerText').value;
+    
+    const newReview = { name, date: 'Just now', rating: selectedRating, text };
+    const movie = getMovieFromURL();
+    movie.userReviews.unshift(newReview);
+    renderUserReviews(movie.userReviews);
+    
+    e.target.reset();
+    updateStars(0);
+    selectedRating = 0;
+    alert('Review submitted successfully!');
+}
+
+// Search
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        const query = this.value.toLowerCase();
+        const found = Object.values(moviesDB).find(m => 
+            m.title.toLowerCase().includes(query) || 
+            m.genre.toLowerCase().includes(query)
+        );
+        if (found) {
+            window.location.href = `movie.html?slug=${found.slug}`;
+        } else {
+            alert('Movie not found! Try: Inception, Interstellar, or Dark Knight');
+        }
+    }
+});
+
+// ============================================
+// INIT
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    const movie = getMovieFromURL();
+    updateSEO(movie);
+    renderMovie(movie);
+});
+</script>
+
+</body>
+</html>
